@@ -1,9 +1,35 @@
-const Navigation = () => {
-return(
-    <nav style={{display: 'flex', justifyContent: 'flex-end'}}>
-        <p className='f3 link dim black underline pa3 pointer'>Sign Out</p>
-    </nav>
-);
-}
+const Navigation = ({ onRouteChange, isSingedIn }) => {
+  if (isSingedIn) {
+    return (
+      <nav style={{ display: "flex", justifyContent: "flex-end" }}>
+        <p
+          onClick={() => onRouteChange("singout")}
+          className="f3 link dim black underline pa3 pointer"
+        >
+          Sign Out
+        </p>
+      </nav>
+    );
+  } else {
+    return (
+      <div>
+        <nav style={{ display: "flex", justifyContent: "flex-end" }}>
+          <p
+            onClick={() => onRouteChange("singin")}
+            className="f3 link dim black underline pa3 pointer"
+          >
+            Sign In
+          </p>
+          <p
+            onClick={() => onRouteChange("register")}
+            className="f3 link dim black underline pa3 pointer"
+          >
+            Register
+          </p>
+        </nav>
+      </div>
+    );
+  }
+};
 
 export default Navigation;
