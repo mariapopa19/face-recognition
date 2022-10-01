@@ -74,7 +74,7 @@ function App() {
           />
           <FaceRecognition box={box} imageURL={imageURL} />
         </div>
-      ) : (route === "singin" ? 
+      ) : (route === "singin" || route === 'singout' ? 
         <SingIn onRouteChange={onRouteChange} />
        : 
         <Register onRouteChange={onRouteChange} />
