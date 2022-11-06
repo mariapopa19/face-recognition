@@ -19,7 +19,24 @@ function App() {
   const [imageURL, setImageURL] = useState("");
   const [box, setBox] = useState({});
   const [route, setRoute] = useState("singin");
-  const [isSingedIn, setIsSingedIn]  = useState(false);
+  const [isSingedIn, setIsSingedIn] = useState(false);
+  const [user, setUser] = useState({
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: "",
+  });
+
+  const loadUser = (data) => {
+    setUser({
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined,
+    });
+  };
 
   const calculateFaceLocation = (data) => {
     const clarifaiFace =
@@ -43,18 +60,36 @@ function App() {
     setInput(event.target.value);
   };
 
-  const onButtonSubmit = () => {
+  const onPictureSubmit = () => {
     setImageURL(input);
     app.models
       .predict(Clarifai.FACE_DETECT_MODEL, input)
-      .then((response) => displayFaceBox(calculateFaceLocation(response)))
+      .then((response) => {
+        if (response) {
+          fetch("http://localhost:3000/image", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: user.id,
+            }),
+          })
+            .then((response) => response.json())
+            .then((count) => {
+              setUser({
+                ...user,
+                entries: count,
+              });
+            });
+        }
+        displayFaceBox(calculateFaceLocation(response));
+      })
       .catch((err) => console.log(err));
   };
 
   const onRouteChange = (route) => {
-    if(route === 'singout') {
+    if (route === "singout") {
       setIsSingedIn(false);
-    } else if (route === 'home') {
+    } else if (route === "home") {
       setIsSingedIn(true);
     }
     setRoute(route);
@@ -67,17 +102,17 @@ function App() {
       {route === "home" ? (
         <div>
           <Logo />
-          <Rank />
+          <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm
             onInputChange={onInputChange}
-            onButtonSubmit={onButtonSubmit}
+            onPictureSubmit={onPictureSubmit}
           />
           <FaceRecognition box={box} imageURL={imageURL} />
         </div>
-      ) : (route === "singin" || route === 'singout' ? 
-        <SingIn onRouteChange={onRouteChange} />
-       : 
-        <Register onRouteChange={onRouteChange} />
+      ) : route === "singin" || route === "singout" ? (
+        <SingIn onRouteChange={onRouteChange} loadUser={loadUser} />
+      ) : (
+        <Register onRouteChange={onRouteChange} loadUser={loadUser} />
       )}
     </div>
   );
