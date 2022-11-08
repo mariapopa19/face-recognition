@@ -15,7 +15,7 @@ const Navigation = ({ onRouteChange, isSingedIn }) => {
       <div>
         <nav style={{ display: "flex", justifyContent: "flex-end" }}>
           <p
-            onClick={() => onRouteChange("singin")}
+            onClick={() => onRouteChange("signin")}
             className="f3 link dim black underline pa3 pointer"
           >
             Sign In

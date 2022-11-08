@@ -4,21 +4,16 @@ import Navigation from "./components/Navigation/Navigation";
 import Rank from "./components/Rank/Rank";
 import ImageLinkForm from "./components/ImageLinlForm/ImageLinkForm";
 import ParticlesBg from "particles-bg";
-import Clarifai from "clarifai";
 import { useState } from "react";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import SingIn from "./components/SingIn/SingIn";
 import Register from "./components/Register/Register";
 
 function App() {
-  const app = new Clarifai.App({
-    apiKey: "5fcf4b3a57d64bb8bf88155fb19d71e9",
-  });
-
   const [input, setInput] = useState("");
   const [imageURL, setImageURL] = useState("");
   const [box, setBox] = useState({});
-  const [route, setRoute] = useState("singin");
+  const [route, setRoute] = useState("signin");
   const [isSingedIn, setIsSingedIn] = useState(false);
   const [user, setUser] = useState({
     id: "",
@@ -27,6 +22,21 @@ function App() {
     entries: 0,
     joined: "",
   });
+
+  const initialState = () => {
+    setInput("");
+    setImageURL("");
+    setBox({});
+    setRoute("");
+    setIsSingedIn(false);
+    setUser({
+      id: "",
+      name: "",
+      email: "",
+      entries: 0,
+      joined: "",
+    });
+  };
 
   const loadUser = (data) => {
     setUser({
@@ -62,8 +72,14 @@ function App() {
 
   const onPictureSubmit = () => {
     setImageURL(input);
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, input)
+    fetch("http://localhost:3000/imageurl", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        input: input,
+      }),
+    })
+      .then((response) => response.json())
       .then((response) => {
         if (response) {
           fetch("http://localhost:3000/image", {
@@ -79,7 +95,8 @@ function App() {
                 ...user,
                 entries: count,
               });
-            });
+            })
+            .catch(console.log);
         }
         displayFaceBox(calculateFaceLocation(response));
       })
@@ -88,7 +105,7 @@ function App() {
 
   const onRouteChange = (route) => {
     if (route === "singout") {
-      setIsSingedIn(false);
+      setIsSingedIn(initialState);
     } else if (route === "home") {
       setIsSingedIn(true);
     }
@@ -109,7 +126,7 @@ function App() {
           />
           <FaceRecognition box={box} imageURL={imageURL} />
         </div>
-      ) : route === "singin" || route === "singout" ? (
+      ) : route === "signin" || route === "singout" ? (
         <SingIn onRouteChange={onRouteChange} loadUser={loadUser} />
       ) : (
         <Register onRouteChange={onRouteChange} loadUser={loadUser} />
